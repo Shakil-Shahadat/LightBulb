@@ -32,7 +32,7 @@
             IsSnapToTickEnabled="True"
             LargeChange="500"
             Maximum="6600"
-            Minimum="2500"
+            Minimum="1000"
             SmallChange="100"
             TickFrequency="20"
             Value="{Binding DayTemperature}" />
@@ -56,7 +56,7 @@
             IsSnapToTickEnabled="True"
             LargeChange="500"
             Maximum="6600"
-            Minimum="2500"
+            Minimum="1000"
             SmallChange="100"
             TickFrequency="20"
             Value="{Binding NightTemperature}" />
