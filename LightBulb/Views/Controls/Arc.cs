@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Tyrrrz.Extensions;
 
 namespace LightBulb.Views.Controls
 {
@@ -11,15 +10,24 @@ namespace LightBulb.Views.Controls
 
     public sealed class Arc : Shape
     {
-        private static object CoerceAngle(DependencyObject d, object baseValue) => baseValue is double angle ? angle % 360.0 : baseValue;
+        private static object CoerceAngle(DependencyObject d, object baseValue) =>
+            baseValue is double angle
+                ? angle % 360.0
+                : baseValue;
 
-        public static readonly DependencyProperty StartAngleProperty =
-            DependencyProperty.Register(nameof(StartAngle), typeof(double), typeof(Arc),
-                new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceAngle));
+        public static readonly DependencyProperty StartAngleProperty = DependencyProperty.Register(
+            nameof(StartAngle),
+            typeof(double),
+            typeof(Arc),
+            new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceAngle)
+        );
 
-        public static readonly DependencyProperty EndAngleProperty =
-            DependencyProperty.Register(nameof(EndAngle), typeof(double), typeof(Arc),
-                new FrameworkPropertyMetadata(90.0, FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceAngle));
+        public static readonly DependencyProperty EndAngleProperty = DependencyProperty.Register(
+            nameof(EndAngle),
+            typeof(double),
+            typeof(Arc),
+            new FrameworkPropertyMetadata(90.0, FrameworkPropertyMetadataOptions.AffectsRender, null, CoerceAngle)
+        );
 
         public double StartAngle
         {
@@ -33,18 +41,18 @@ namespace LightBulb.Views.Controls
             set => SetValue(EndAngleProperty, value);
         }
 
-        protected override Geometry DefiningGeometry => GetDefiningGeometry();
-
-        private Geometry GetDefiningGeometry()
+        protected override Geometry DefiningGeometry
         {
-            var geometry = new StreamGeometry();
-            using (var ctx = geometry.Open())
+            get
             {
+                var geometry = new StreamGeometry();
+                using var ctx = geometry.Open();
+
                 var offsetX = StrokeThickness / 2.0;
                 var offsetY = StrokeThickness / 2.0;
 
-                var radiusX = (ActualWidth / 2.0 - offsetX).ClampMin(0);
-                var radiusY = (ActualHeight / 2.0 - offsetY).ClampMin(0);
+                var radiusX = Math.Max(ActualWidth / 2.0 - offsetX, 0);
+                var radiusY = Math.Max(ActualHeight / 2.0 - offsetY, 0);
 
                 var startX = offsetX + radiusX + radiusX * Math.Sin(StartAngle * Math.PI / 180.0);
                 var startY = offsetY + radiusY - radiusY * Math.Cos(StartAngle * Math.PI / 180.0);
@@ -53,12 +61,15 @@ namespace LightBulb.Views.Controls
                 var endY = offsetY + radiusY - radiusY * Math.Cos(EndAngle * Math.PI / 180.0);
 
                 // This single line took me 2 hours to write
-                var isLargeArc = StartAngle <= EndAngle && Math.Abs(EndAngle - StartAngle) > 180.0 ||
-                                 StartAngle > EndAngle && Math.Abs(EndAngle - StartAngle) < 180.0;
+                var isLargeArc =
+                    StartAngle <= EndAngle && Math.Abs(EndAngle - StartAngle) > 180.0 ||
+                    StartAngle > EndAngle && Math.Abs(EndAngle - StartAngle) < 180.0;
 
                 ctx.BeginFigure(
                     new Point(startX, startY),
-                    true, false);
+                    true,
+                    false
+                );
 
                 ctx.ArcTo(
                     new Point(endX, endY),
@@ -66,10 +77,12 @@ namespace LightBulb.Views.Controls
                     0.0,
                     isLargeArc,
                     SweepDirection.Clockwise,
-                    true, false);
-            }
+                    true,
+                    false
+                );
 
-            return geometry;
+                return geometry;
+            }
         }
     }
 }
